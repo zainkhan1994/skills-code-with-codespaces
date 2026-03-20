@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>🚀 Mission Complete — Code with Codespaces</title>
+  <style>
+    /* ── Reset & Base ────────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --space-black: #0a0a1a;
+      --deep-blue:   #060618;
+      --nebula-pink: #ff4db8;
+      --nebula-blue: #4dabff;
+      --nebula-teal: #00ffd0;
+      --star-white:  #e8f0ff;
+      --accent:      #7c4dff;
+      --card-bg:     rgba(10, 10, 30, 0.75);
+      --border:      rgba(77, 171, 255, 0.25);
+      --text:        #c8d8ff;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--space-black);
+      color: var(--text);
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* ── Starfield ───────────────────────────────────────────────── */
+    #starfield {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    /* ── Nebula glow blobs ───────────────────────────────────────── */
+    .nebula {
+      position: fixed;
+      border-radius: 50%;
+      filter: blur(120px);
+      opacity: 0.18;
+      z-index: 0;
+      pointer-events: none;
+    }
+    .nebula-1 { width: 600px; height: 600px; background: var(--nebula-blue);  top: -150px; left: -100px; }
+    .nebula-2 { width: 500px; height: 500px; background: var(--nebula-pink);  bottom: 0;   right: -100px; }
+    .nebula-3 { width: 350px; height: 350px; background: var(--nebula-teal);  top: 40%;    left: 40%;    opacity: 0.12; }
+
+    /* ── Page wrapper ────────────────────────────────────────────── */
+    .page {
+      position: relative;
+      z-index: 1;
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 2rem 1.5rem 6rem;
+    }
+
+    /* ── Hero section ────────────────────────────────────────────── */
+    .hero {
+      text-align: center;
+      padding: 5rem 0 3rem;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: rgba(124, 77, 255, 0.15);
+      border: 1px solid rgba(124, 77, 255, 0.4);
+      color: #a07cff;
+      border-radius: 2rem;
+      padding: 0.4rem 1.1rem;
+      font-size: 0.8rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      margin-bottom: 1.8rem;
+    }
+
+    .hero h1 {
+      font-size: clamp(2.4rem, 6vw, 4rem);
+      font-weight: 800;
+      line-height: 1.1;
+      background: linear-gradient(135deg, var(--nebula-blue) 0%, var(--nebula-teal) 50%, var(--nebula-pink) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 1rem;
+    }
+
+    .hero .subtitle {
+      font-size: 1.15rem;
+      color: #8899cc;
+      max-width: 520px;
+      margin: 0 auto 2.5rem;
+      line-height: 1.6;
+    }
+
+    /* Rocket animation */
+    .rocket-wrap {
+      display: inline-block;
+      font-size: 4.5rem;
+      animation: launch 3s ease-in-out infinite alternate;
+      margin-bottom: 2rem;
+      filter: drop-shadow(0 0 20px rgba(0, 255, 208, 0.6));
+    }
+    @keyframes launch {
+      0%   { transform: translateY(0)   rotate(-8deg); }
+      100% { transform: translateY(-20px) rotate(8deg); }
+    }
+
+    /* ── CTA buttons ─────────────────────────────────────────────── */
+    .btn-row {
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+      flex-wrap: wrap;
+      margin-top: 0.5rem;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.75rem 1.75rem;
+      border-radius: 0.6rem;
+      font-size: 0.95rem;
+      font-weight: 700;
+      text-decoration: none;
+      transition: transform 0.15s, box-shadow 0.15s;
+      cursor: pointer;
+    }
+    .btn:hover { transform: translateY(-3px); }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--accent), #4dabff);
+      color: #fff;
+      box-shadow: 0 0 24px rgba(124, 77, 255, 0.5);
+    }
+    .btn-primary:hover { box-shadow: 0 0 36px rgba(124, 77, 255, 0.8); }
+
+    .btn-secondary {
+      background: rgba(255,255,255,0.05);
+      color: var(--nebula-blue);
+      border: 1px solid rgba(77, 171, 255, 0.35);
+    }
+    .btn-secondary:hover { background: rgba(77, 171, 255, 0.1); }
+
+    /* ── Divider ─────────────────────────────────────────────────── */
+    .divider {
+      width: 100%;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--border), transparent);
+      margin: 3rem 0;
+    }
+
+    /* ── Stats row ───────────────────────────────────────────────── */
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 1.2rem;
+      margin-bottom: 3rem;
+    }
+
+    .stat-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 1rem;
+      padding: 1.4rem 1rem;
+      text-align: center;
+      backdrop-filter: blur(12px);
+      transition: border-color 0.3s, transform 0.2s;
+    }
+    .stat-card:hover { border-color: var(--nebula-teal); transform: translateY(-4px); }
+
+    .stat-icon { font-size: 2rem; margin-bottom: 0.5rem; }
+    .stat-value { font-size: 1.9rem; font-weight: 800; color: var(--nebula-teal); }
+    .stat-label { font-size: 0.78rem; color: #6677aa; text-transform: uppercase; letter-spacing: 0.08em; margin-top: 0.2rem; }
+
+    /* ── Section headings ────────────────────────────────────────── */
+    .section-title {
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: var(--star-white);
+      margin-bottom: 1.4rem;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+    .section-title::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+
+    /* ── Mission steps ───────────────────────────────────────────── */
+    .steps { display: flex; flex-direction: column; gap: 1rem; margin-bottom: 3rem; }
+
+    .step-card {
+      display: grid;
+      grid-template-columns: 3rem 1fr;
+      gap: 1rem;
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 1rem;
+      padding: 1.2rem 1.4rem;
+      backdrop-filter: blur(12px);
+      align-items: start;
+      transition: border-color 0.3s, transform 0.2s;
+    }
+    .step-card:hover { border-color: var(--nebula-pink); transform: translateX(4px); }
+
+    .step-num {
+      width: 3rem;
+      height: 3rem;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--accent), #4dabff);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 1.1rem;
+      color: #fff;
+      flex-shrink: 0;
+    }
+
+    .step-content h3 { font-size: 1rem; font-weight: 700; color: var(--star-white); margin-bottom: 0.3rem; }
+    .step-content p  { font-size: 0.88rem; color: #8899cc; line-height: 1.55; }
+
+    .step-tag {
+      display: inline-block;
+      font-size: 0.7rem;
+      padding: 0.15rem 0.55rem;
+      border-radius: 0.3rem;
+      background: rgba(0, 255, 208, 0.12);
+      color: var(--nebula-teal);
+      border: 1px solid rgba(0, 255, 208, 0.25);
+      margin-top: 0.45rem;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+    }
+
+    /* ── Code terminal ───────────────────────────────────────────── */
+    .terminal {
+      background: #080816;
+      border: 1px solid rgba(77, 171, 255, 0.2);
+      border-radius: 0.9rem;
+      overflow: hidden;
+      margin-bottom: 3rem;
+      box-shadow: 0 0 40px rgba(77, 171, 255, 0.08);
+    }
+
+    .terminal-bar {
+      background: #111128;
+      padding: 0.65rem 1.2rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .dot { width: 12px; height: 12px; border-radius: 50%; }
+    .dot-r { background: #ff5f57; }
+    .dot-y { background: #ffbd2e; }
+    .dot-g { background: #28c840; }
+    .terminal-title { margin-left: auto; font-size: 0.75rem; color: #445; }
+
+    .terminal-body {
+      padding: 1.4rem 1.6rem;
+      font-family: 'Fira Code', 'Cascadia Code', 'Courier New', monospace;
+      font-size: 0.82rem;
+      line-height: 1.8;
+      overflow-x: auto;
+    }
+
+    .t-prompt { color: var(--nebula-teal); }
+    .t-cmd    { color: var(--star-white); }
+    .t-out    { color: #6677aa; white-space: pre; }
+    .t-art    { color: var(--nebula-blue); white-space: pre; }
+    .t-msg    { color: var(--nebula-teal); }
+
+    /* ── Tech stack pills ────────────────────────────────────────── */
+    .tech-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.7rem;
+      margin-bottom: 3rem;
+    }
+
+    .tech-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.45rem 1rem;
+      border-radius: 2rem;
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--text);
+      backdrop-filter: blur(8px);
+      transition: border-color 0.3s, transform 0.2s;
+    }
+    .tech-pill:hover { border-color: var(--nebula-blue); transform: translateY(-2px); }
+    .tech-pill .icon { font-size: 1.1rem; }
+
+    /* ── Footer ──────────────────────────────────────────────────── */
+    footer {
+      position: relative;
+      z-index: 1;
+      text-align: center;
+      padding: 2rem 1rem;
+      font-size: 0.82rem;
+      color: #445;
+      border-top: 1px solid var(--border);
+    }
+    footer a { color: #6677aa; text-decoration: none; }
+    footer a:hover { color: var(--nebula-blue); }
+
+    /* ── Scroll reveal ───────────────────────────────────────────── */
+    .reveal { opacity: 0; transform: translateY(30px); transition: opacity 0.55s ease, transform 0.55s ease; }
+    .reveal.visible { opacity: 1; transform: none; }
+  </style>
+</head>
+<body>
+
+<!-- Background elements -->
+<div class="nebula nebula-1"></div>
+<div class="nebula nebula-2"></div>
+<div class="nebula nebula-3"></div>
+<canvas id="starfield"></canvas>
+
+<div class="page">
+
+  <!-- ── HERO ──────────────────────────────────────────────────── -->
+  <section class="hero reveal">
+    <div class="badge">🛰️ &nbsp; Mission Accomplished</div>
+    <div class="rocket-wrap" aria-hidden="true">🚀</div>
+    <h1>Code with Codespaces</h1>
+    <p class="subtitle">
+      Spaceman <strong style="color:var(--nebula-teal)">zainkhan1994</strong> has successfully completed
+      the GitHub Skills lab — launching, customizing, and coding in the cloud.
+    </p>
+    <div class="btn-row">
+      <a class="btn btn-primary" href="https://github.com/zainkhan1994/skills-code-with-codespaces" target="_blank" rel="noopener">
+        📦 View Repository
+      </a>
+      <a class="btn btn-secondary" href="https://github.com/skills/code-with-codespaces" target="_blank" rel="noopener">
+        📘 Lab Guide
+      </a>
+    </div>
+  </section>
+
+  <div class="divider reveal"></div>
+
+  <!-- ── STATS ─────────────────────────────────────────────────── -->
+  <div class="stats reveal">
+    <div class="stat-card">
+      <div class="stat-icon">🛸</div>
+      <div class="stat-value">3</div>
+      <div class="stat-label">Steps Completed</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon">⚡</div>
+      <div class="stat-value">&lt;60s</div>
+      <div class="stat-label">Codespace Boot Time</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon">☁️</div>
+      <div class="stat-value">100%</div>
+      <div class="stat-label">Cloud Powered</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon">🌌</div>
+      <div class="stat-value">∞</div>
+      <div class="stat-label">Repos from Anywhere</div>
+    </div>
+  </div>
+
+  <!-- ── MISSION STEPS ──────────────────────────────────────────── -->
+  <p class="section-title reveal">📋 Mission Log</p>
+  <div class="steps">
+    <div class="step-card reveal">
+      <div class="step-num">1</div>
+      <div class="step-content">
+        <h3>Launch a Codespace</h3>
+        <p>Created a GitHub Codespace from the repository — a full Linux VM in the cloud connected to VS Code in the browser. No local setup required.</p>
+        <span class="step-tag">✅ Complete</span>
+      </div>
+    </div>
+    <div class="step-card reveal">
+      <div class="step-num">2</div>
+      <div class="step-content">
+        <h3>Edit &amp; Push Code</h3>
+        <p>Edited <code>src/hello.py</code> directly in the Codespace to print a spaceman ASCII rocket, then committed and pushed from the cloud terminal.</p>
+        <span class="step-tag">✅ Complete</span>
+      </div>
+    </div>
+    <div class="step-card reveal">
+      <div class="step-num">3</div>
+      <div class="step-content">
+        <h3>Customize the Dev Container</h3>
+        <p>Configured <code>.devcontainer/devcontainer.json</code> with a custom name, Python 3.10 feature, and VS Code extensions. Added a <code>postCreate.sh</code> script that installs <code>figlet</code>, <code>cowsay</code>, and <code>lolcat</code> for a colorful launch banner.</p>
+        <span class="step-tag">✅ Complete</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── TERMINAL ───────────────────────────────────────────────── -->
+  <p class="section-title reveal">💻 Live Output</p>
+  <div class="terminal reveal">
+    <div class="terminal-bar">
+      <span class="dot dot-r"></span>
+      <span class="dot dot-y"></span>
+      <span class="dot dot-g"></span>
+      <span class="terminal-title">bash — 🚀 Spaceman Dev Environment</span>
+    </div>
+    <div class="terminal-body">
+      <div><span class="t-prompt">spaceman@codespace:~$ </span><span class="t-cmd">python src/hello.py</span></div>
+      <div class="t-art">
+        *    .  *       .           *
+   .                *        .             .
+         .    ____
+              |    |
+   *     .    |    |    .        *
+              |    |
+         _____|    |_____
+        /    spaceman    \     .
+       / zainkhan1994     \
+      /   is in orbit!     \
+     /________________________\
+              |    |
+              |    |
+             /      \
+            /   🚀   \
+      </div>
+      <div class="t-msg">🌌 T-minus zero — Codespace has launched! 🌌</div>
+      <div class="t-msg">📡 Transmitting from the cloud to your browser...</div>
+      <div class="t-msg">👨‍🚀 Mission: Code with Codespaces — Complete!</div>
+      <br/>
+      <div><span class="t-prompt">spaceman@codespace:~$ </span><span class="t-cmd">cat .devcontainer/devcontainer.json | python -m json.tool</span></div>
+      <div class="t-out">{
+    "name": "🚀 Spaceman Dev Environment",
+    "image": "mcr.microsoft.com/devcontainers/base:debian",
+    "features": {
+        "ghcr.io/devcontainers/features/python:1": {
+            "version": "3.10"
+        }
+    },
+    "postCreateCommand": ".devcontainer/postCreate.sh"
+}</div>
+    </div>
+  </div>
+
+  <!-- ── TECH STACK ─────────────────────────────────────────────── -->
+  <p class="section-title reveal">🛠️ Tech Stack</p>
+  <div class="tech-row reveal">
+    <span class="tech-pill"><span class="icon">🐙</span> GitHub Codespaces</span>
+    <span class="tech-pill"><span class="icon">🐍</span> Python 3.10</span>
+    <span class="tech-pill"><span class="icon">🐳</span> Dev Containers</span>
+    <span class="tech-pill"><span class="icon">🐧</span> Debian Linux</span>
+    <span class="tech-pill"><span class="icon">💙</span> VS Code</span>
+    <span class="tech-pill"><span class="icon">🎨</span> figlet · cowsay · lolcat</span>
+    <span class="tech-pill"><span class="icon">🌿</span> Git</span>
+    <span class="tech-pill"><span class="icon">🔑</span> GitHub Actions</span>
+  </div>
+
+</div><!-- /.page -->
+
+<footer>
+  Built inside a ☁️ GitHub Codespace &bull;
+  <a href="https://github.com/zainkhan1994/skills-code-with-codespaces" target="_blank" rel="noopener">zainkhan1994/skills-code-with-codespaces</a> &bull;
+  <a href="https://github.com/skills/code-with-codespaces" target="_blank" rel="noopener">GitHub Skills</a>
+</footer>
+
+<script>
+  // ── Starfield canvas ──────────────────────────────────────────
+  (function () {
+    const canvas = document.getElementById('starfield');
+    const ctx = canvas.getContext('2d');
+    let stars = [];
+
+    function resize() {
+      canvas.width  = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+
+    function initStars(count) {
+      stars = Array.from({ length: count }, () => ({
+        x:   Math.random() * canvas.width,
+        y:   Math.random() * canvas.height,
+        r:   Math.random() * 1.4 + 0.2,
+        a:   Math.random(),
+        da:  (Math.random() * 0.004 + 0.001) * (Math.random() < 0.5 ? 1 : -1),
+        vx:  (Math.random() - 0.5) * 0.06,
+        vy:  (Math.random() - 0.5) * 0.06,
+      }));
+    }
+
+    function draw() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      for (const s of stars) {
+        s.a  = Math.max(0, Math.min(1, s.a + s.da));
+        if (s.a <= 0 || s.a >= 1) s.da *= -1;
+        s.x = (s.x + s.vx + canvas.width)  % canvas.width;
+        s.y = (s.y + s.vy + canvas.height) % canvas.height;
+
+        ctx.beginPath();
+        ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(200, 220, 255, ${s.a})`;
+        ctx.fill();
+      }
+      requestAnimationFrame(draw);
+    }
+
+    resize();
+    initStars(220);
+    draw();
+    window.addEventListener('resize', () => { resize(); initStars(220); });
+  })();
+
+  // ── Scroll-reveal ─────────────────────────────────────────────
+  (function () {
+    const els = document.querySelectorAll('.reveal');
+    const io  = new IntersectionObserver(
+      (entries) => entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); io.unobserve(e.target); } }),
+      { threshold: 0.12 }
+    );
+    els.forEach(el => io.observe(el));
+  })();
+</script>
+</body>
+</html>
