@@ -1,5 +1,5 @@
 {
-  "name": "Basic Dev Environment",
+  "name": "🚀 Spaceman Dev Environment",
   "image": "mcr.microsoft.com/devcontainers/base:debian",
   "features": {
     "ghcr.io/devcontainers/features/python:1": {
